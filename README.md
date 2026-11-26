@@ -2,7 +2,7 @@
 
 **Can a bank identify likely term-deposit subscribers before a marketing call begins?** This classification project uses historical campaigns from a Portuguese bank to study that decision. The eventual dashboard will let a visitor score an example contact and see how changing the decision cutoff affects missed subscribers and unnecessary calls.
 
-**Current milestone · 3 of 6.** The executed notebook defines the pre-call decision, explores response patterns and prepares the three pre-call inputs. [Explore the master notebook](bank_campaign_response_prediction.ipynb)
+**Current milestone · 4 of 6.** The executed notebook compares two scoring methods using only information available before a call. [Explore the master notebook](bank_campaign_response_prediction.ipynb)
 
 ## The prediction contract
 
@@ -21,7 +21,7 @@
 | 1 · Define the prediction | Document the source and target, inspect the schema and establish a pre-call feature list | Complete |
 | 2 · Explore the campaigns | Reserve later records, measure class balance and explore earlier campaigns | Complete |
 | 3 · Prepare the inputs | Build a preprocessing pipeline for numeric fields, categories and unknown values | Complete |
-| 4 · Compare models | Evaluate a simple baseline and logistic regression on validation records | Planned |
+| 4 · Compare models | Evaluate a simple baseline and logistic regression on validation records | Complete |
 | 5 · Choose an operating cutoff | Compare precision, recall and call volume, then report held-out results | Planned |
 | 6 · Demonstrate the predictor | Publish an interactive dashboard with example inputs, response scores and an adjustable cutoff | Planned |
 
@@ -44,7 +44,11 @@ A scikit-learn column transformer converts the earlier-contact count, job and pr
 
 The executed notebook checks two dashboard edge cases: a missing job activates the observed `unknown` indicator, while an unfamiliar job leaves all job indicators at zero. In both cases the known previous-outcome indicator is preserved.
 
-## Reproduce Parts 1–3
+## Part 4 · Validation results
+
+On the 6,178 validation contacts, logistic regression achieved **0.180 average precision** and **0.589 ROC AUC**. The constant baseline achieved **0.107** and **0.500**, respectively. The higher AP supports carrying logistic regression forward for cutoff selection. At a 0.50 cutoff it flagged **0** contacts and missed **658** subscribers. The ranking and the decision rule answer different business questions.
+
+## Reproduce Parts 1–4
 
 Clone the repository and run these commands in a Windows Miniconda prompt:
 
