@@ -6,6 +6,7 @@ on:
     paths:
       - bank_campaign_response_prediction.ipynb
       - dashboard/template.html
+      - scripts/check-dashboard.cjs
       - requirements.txt
       - .github/workflows/build-dashboard.yml
 permissions:
@@ -43,10 +44,18 @@ jobs:
           assert scope["test_result"]["found"] == 1150
           assert len(scope["lookup"]) == 84
           PY
+      - name: Test the dashboard in Chrome and capture the demo
+        run: |
+          npm install --prefix "$RUNNER_TEMP/bank-dashboard-test" --no-package-lock playwright-core@1.56.1
+          NODE_PATH="$RUNNER_TEMP/bank-dashboard-test/node_modules" node scripts/check-dashboard.cjs
       - name: Publish the generated static dashboard
         run: |
-          git add dashboard/index.html
+          git add dashboard/index.html dashboard/preview.png
           if ! git diff --cached --quiet; then
             git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Publish verified dashboard export'
             git push origin HEAD:main
           fi
+      - name: Check the public dashboard URL
+        continue-on-error: true
+        run: |
+          NODE_PATH="$RUNNER_TEMP/bank-dashboard-test/node_modules" node scripts/check-dashboard.cjs https://raw.githack.com/shainaulakh/bank-campaign-response-prediction/main/dashboard/index.html

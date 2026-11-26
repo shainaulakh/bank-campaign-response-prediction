@@ -4,6 +4,10 @@
 
 [Open the interactive dashboard](https://raw.githack.com/shainaulakh/bank-campaign-response-prediction/main/dashboard/index.html) · [Explore the master notebook](bank_campaign_response_prediction.ipynb)
 
+On the latest **6,179 historical contacts**, the selected policy flagged **2,095** and found **1,150 of 2,376 subscribers**. Precision reached **54.9%** against a period response rate of **38.5%**. Recall was **48.4%**. The model concentrates subscribers in a smaller list, but misses just over half of them.
+
+![Pre-call score and cutoff explorer at the published operating point](dashboard/preview.png)
+
 ## The prediction contract
 
 | Decision | Definition |
@@ -74,6 +78,10 @@ code .
 ```
 
 On macOS or Linux, use `curl` in place of `curl.exe`. Open the master notebook from the project root, select the **bank-campaign** kernel and choose **Run All**. The notebook reads the CSV inside the archive directly. Expected dimensions are **41,188 rows × 21 columns**, including the target.
+
+## Interpretation and limitations
+
+The cutoff was selected before test evaluation. Adjusting the slider against the historical test records is a demonstration, not a fresh performance estimate. The subscription rate rose from 5.57% in training to 10.65% in validation and 38.45% in testing. A deployment for another campaign would require fresh chronological evaluation, calibration checks, and an explicit call budget or cost model. The dataset lacks customer identifiers for checking repeat-client overlap. Historical contact outcomes alone cannot show how many subscriptions a call would cause.
 
 ## Data and attribution
 
