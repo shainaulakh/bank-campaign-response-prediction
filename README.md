@@ -2,7 +2,7 @@
 
 **Can a bank identify likely term-deposit subscribers before a marketing call begins?** This classification project uses historical campaigns from a Portuguese bank to study that decision. The eventual dashboard will let a visitor score an example contact and see how changing the decision cutoff affects missed subscribers and unnecessary calls.
 
-**Current milestone · 4 of 6.** The executed notebook compares two scoring methods using only information available before a call. [Explore the master notebook](bank_campaign_response_prediction.ipynb)
+**Current milestone · 5 of 6.** The executed notebook now evaluates a locked pre-call scoring policy on the latest records. [Explore the master notebook](bank_campaign_response_prediction.ipynb)
 
 ## The prediction contract
 
@@ -22,7 +22,7 @@
 | 2 · Explore the campaigns | Reserve later records, measure class balance and explore earlier campaigns | Complete |
 | 3 · Prepare the inputs | Build a preprocessing pipeline for numeric fields, categories and unknown values | Complete |
 | 4 · Compare models | Evaluate a simple baseline and logistic regression on validation records | Complete |
-| 5 · Choose an operating cutoff | Compare precision, recall and call volume, then report held-out results | Planned |
+| 5 · Choose an operating cutoff | Compare precision, recall and call volume, then report held-out results | Complete |
 | 6 · Demonstrate the predictor | Publish an interactive dashboard with example inputs, response scores and an adjustable cutoff | Planned |
 
 ## Part 2 findings
@@ -48,7 +48,11 @@ The executed notebook checks two dashboard edge cases: a missing job activates t
 
 On the 6,178 validation contacts, logistic regression achieved **0.180 average precision** and **0.589 ROC AUC**. The constant baseline achieved **0.107** and **0.500**, respectively. The higher AP supports carrying logistic regression forward for cutoff selection. At a 0.50 cutoff it flagged **0** contacts and missed **658** subscribers. The ranking and the decision rule answer different business questions.
 
-## Reproduce Parts 1–4
+## Part 5 · Held-out policy results
+
+The validation-selected cutoff was **0.09241** (rounded for display). On validation it flagged 431 of 6,178 contacts. On the 6,179 later test records it flagged **2,095**: **1,150** subscribed and **945** declined. It missed **1,226** of the 2,376 recorded subscribers. Precision was **54.9%**, recall **48.4%**, and F1 **0.514**. The cutoff maximizes validation F1, an illustrative choice in the absence of business cost data. Flagging everyone on the test period yields F1 0.555.
+
+## Reproduce Parts 1–5
 
 Clone the repository and run these commands in a Windows Miniconda prompt:
 
