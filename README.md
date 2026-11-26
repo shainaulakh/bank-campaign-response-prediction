@@ -2,7 +2,7 @@
 
 **Can a bank identify likely term-deposit subscribers before a marketing call begins?** This classification project uses historical campaigns from a Portuguese bank to study that decision. The browser dashboard scores example contacts and shows the trade-off between missed subscribers and call volume.
 
-[Open the interactive dashboard](https://raw.githack.com/shainaulakh/bank-campaign-response-prediction/main/dashboard/index.html) · [Explore the master notebook](bank_campaign_response_prediction.ipynb)
+[Open the interactive dashboard](https://shainaulakh.github.io/bank-campaign-response-prediction/dashboard/) · [Explore the master notebook](bank_campaign_response_prediction.ipynb)
 
 On the latest **6,179 historical contacts**, the selected policy flagged **2,095** and found **1,150 of 2,376 subscribers**. Precision reached **54.9%** against a period response rate of **38.5%**. Recall was **48.4%**. The model concentrates subscribers in a smaller list, but misses just over half of them.
 
