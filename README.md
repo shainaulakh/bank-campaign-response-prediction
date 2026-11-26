@@ -2,7 +2,7 @@
 
 **Can a bank identify likely term-deposit subscribers before a marketing call begins?** This classification project uses historical campaigns from a Portuguese bank to study that decision. The eventual dashboard will let a visitor score an example contact and see how changing the decision cutoff affects missed subscribers and unnecessary calls.
 
-**Current milestone · 2 of 6.** The executed notebook defines the pre-call decision and explores response patterns in the earlier training records. [Explore the master notebook](bank_campaign_response_prediction.ipynb)
+**Current milestone · 3 of 6.** The executed notebook defines the pre-call decision, explores response patterns and prepares the three pre-call inputs. [Explore the master notebook](bank_campaign_response_prediction.ipynb)
 
 ## The prediction contract
 
@@ -20,7 +20,7 @@
 |---|---|---|
 | 1 · Define the prediction | Document the source and target, inspect the schema and establish a pre-call feature list | Complete |
 | 2 · Explore the campaigns | Reserve later records, measure class balance and explore earlier campaigns | Complete |
-| 3 · Prepare the inputs | Build a preprocessing pipeline for numeric fields, categories and unknown values | Planned |
+| 3 · Prepare the inputs | Build a preprocessing pipeline for numeric fields, categories and unknown values | Complete |
 | 4 · Compare models | Evaluate a simple baseline and logistic regression on validation records | Planned |
 | 5 · Choose an operating cutoff | Compare precision, recall and call volume, then report held-out results | Planned |
 | 6 · Demonstrate the predictor | Publish an interactive dashboard with example inputs, response scores and an adjustable cutoff | Planned |
@@ -38,7 +38,13 @@ The date-ordered split assigns 28,831 records to training, 6,178 to validation a
 
 Always predicting “no” would be 94.43% accurate on training records while missing every subscriber. This motivates reporting precision and recall when models are compared. The previous-success group is small, so its higher observed rate should be interpreted cautiously.
 
-## Reproduce Parts 1 and 2
+## Part 3 · Preprocessing checks
+
+A scikit-learn column transformer converts the earlier-contact count, job and previous outcome into **16 numeric columns**. It learns fill values, scaling parameters and category lists from training records. Applying those rules to validation preserves all 6,178 rows and the same column order.
+
+The executed notebook checks two dashboard edge cases: a missing job activates the observed `unknown` indicator, while an unfamiliar job leaves all job indicators at zero. In both cases the known previous-outcome indicator is preserved.
+
+## Reproduce Parts 1–3
 
 Clone the repository and run these commands in a Windows Miniconda prompt:
 
