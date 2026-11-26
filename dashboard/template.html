@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bank campaign response predictor</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef2ef;color:#173a38;font:16px/1.5 "DM Sans",system-ui,sans-serif}
+main{max-width:1040px;margin:auto;padding:48px 24px}h1{font:600 clamp(32px,6vw,56px)/1.05 Georgia,serif;margin:10px 0}header p{max-width:70ch}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}section{background:white;border:1px solid #c6d5ca;border-radius:14px;padding:24px}h2{margin:0 0 14px;font-size:22px}label{display:block;margin:10px 0 4px;font-weight:600}select,input{width:100%;padding:8px;font:inherit;accent-color:#126b5e}select{border:1px solid #80998d;background:white;border-radius:5px}
+.score{background:#164b46;color:white;border-radius:8px;padding:14px 18px;margin:16px 0}.score strong{display:block;font-size:36px}button{background:white;color:#16584d;border:1px solid #70978c;padding:8px 12px;border-radius:6px;cursor:pointer}
+dl{display:grid;grid-template-columns:1fr auto;gap:7px}dd{margin:0;font-weight:700}.bar{background:#e2eae6;height:12px;border-radius:8px;overflow:hidden}.bar span{display:block;height:100%;background:#178575}footer{font-size:14px;margin-top:20px}a{color:#176c60}@media(max-width:680px){main{padding:20px 12px}.grid{grid-template-columns:1fr}}
+</style></head><body><main><header><h1>Bank campaign response predictor</h1><p>Score an example contact before a call. Adjust the cutoff to see how many historical subscribers the same decision rule would have reached.</p></header>
+<div class="grid"><section><h2>Example contact</h2><label for="job">Job category</label><select id="job"></select><label for="previous">Contacts before this campaign</label><select id="previous"></select><label for="outcome">Previous campaign outcome</label><select id="outcome"></select>
+<div class="score" aria-live="polite">Model score<strong id="score"></strong><span id="decision"></span></div><small>Scores rank contacts. Their accuracy as probability estimates has not been established.</small></section>
+<section><h2>Cutoff explorer</h2><label for="cutoff">Cutoff <output id="threshold"></output></label><input id="cutoff" type="range" min="0" max="1" step="0.001"><button id="reset">Restore validation cutoff</button>
+<h3>Historical test period</h3><div class="bar"><span id="fill"></span></div><dl id="metrics"></dl><small>The slider explores held-out outcomes retrospectively. Restore the validation cutoff to reproduce the published benchmark.</small></section></div><footer>Historical Portuguese phone campaigns · UCI Bank Marketing · <a href="https://github.com/shainaulakh/bank-campaign-response-prediction">Notebook and methodology</a></footer></main>
+<script id="data" type="application/json">__MODEL_DATA__</script><script>
+const data = JSON.parse(document.getElementById('data').textContent);
+const el = id => document.getElementById(id);
+let cutoff = data.cutoff;
+function options(id, values) {
+  el(id).replaceChildren(...values.map(value => new Option(String(value), String(value))));
+}
+function setOutcomes() {
+  options('outcome', Number(el('previous').value) === 0 ? ['nonexistent'] : ['failure', 'success']);
+}
+function render() {
+  const key = JSON.stringify([el('job').value, Number(el('previous').value), el('outcome').value]);
+  const score = data.lookup[key];
+  el('score').textContent = (100 * score).toFixed(2) + '%';
+  el('decision').textContent = score >= cutoff ? 'Flag for a call' : 'Below the call cutoff';
+  el('threshold').textContent = (100 * cutoff).toFixed(3) + '%';
+  let flagged = 0, found = 0;
+  for (const [s, size, yes] of data.groups) {
+    if (s >= cutoff) { flagged += size; found += yes; }
+  }
+  const rows = [['Contacts flagged', flagged+' / '+data.n], ['Subscribers found', found],
+    ['Flagged who declined', flagged-found], ['Subscribers missed',data.positives-found],
+    ['Precision', flagged ? (100*found/flagged).toFixed(1)+'%' : '—'],
+    ['Recall',(100*found/data.positives).toFixed(1)+'%']];
+  el('fill').style.width = (100*flagged/data.n)+'%';
+  el('metrics').replaceChildren(...rows.flatMap(([name,value]) => {
+    const term=document.createElement('dt'), detail=document.createElement('dd');
+    term.textContent=name; detail.textContent=value; return [term,detail];
+  }));
+}
+function reset() { cutoff=data.cutoff; el('cutoff').value=cutoff; render(); }
+options('job',data.jobs); options('previous',data.counts); el('job').value='technician';
+setOutcomes(); reset();
+el('job').onchange=render; el('outcome').onchange=render;
+el('previous').onchange=()=>{setOutcomes();render();};
+el('cutoff').oninput=()=>{cutoff=Number(el('cutoff').value);render();};
+el('reset').onclick=reset;
+</script></body></html>

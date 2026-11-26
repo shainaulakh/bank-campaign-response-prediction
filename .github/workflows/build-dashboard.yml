@@ -1,0 +1,52 @@
+name: Rebuild dashboard
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - bank_campaign_response_prediction.ipynb
+      - dashboard/template.html
+      - requirements.txt
+      - .github/workflows/build-dashboard.yml
+permissions:
+  contents: write
+concurrency:
+  group: dashboard-build
+  cancel-in-progress: true
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r requirements.txt
+      - name: Download the documented UCI archive
+        run: |
+          mkdir -p data
+          curl --retry 3 -fsSL 'https://archive.ics.uci.edu/static/public/222/bank+marketing.zip' -o data/bank-marketing.zip
+      - name: Run the notebook and check the exported benchmark
+        env:
+          MPLBACKEND: Agg
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          scope = {}
+          notebook = json.loads(Path("bank_campaign_response_prediction.ipynb").read_text())
+          for cell in notebook["cells"]:
+              if cell["cell_type"] == "code":
+                  exec("".join(cell["source"]), scope)
+          assert scope["test_result"]["flagged"] == 2095
+          assert scope["test_result"]["found"] == 1150
+          assert len(scope["lookup"]) == 84
+          PY
+      - name: Publish the generated static dashboard
+        run: |
+          git add dashboard/index.html
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Publish verified dashboard export'
+            git push origin HEAD:main
+          fi

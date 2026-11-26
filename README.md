@@ -1,8 +1,8 @@
 # Bank Campaign Response Prediction
 
-**Can a bank identify likely term-deposit subscribers before a marketing call begins?** This classification project uses historical campaigns from a Portuguese bank to study that decision. The eventual dashboard will let a visitor score an example contact and see how changing the decision cutoff affects missed subscribers and unnecessary calls.
+**Can a bank identify likely term-deposit subscribers before a marketing call begins?** This classification project uses historical campaigns from a Portuguese bank to study that decision. The browser dashboard scores example contacts and shows the trade-off between missed subscribers and call volume.
 
-**Current milestone · 5 of 6.** The executed notebook now evaluates a locked pre-call scoring policy on the latest records. [Explore the master notebook](bank_campaign_response_prediction.ipynb)
+[Open the interactive dashboard](https://raw.githack.com/shainaulakh/bank-campaign-response-prediction/main/dashboard/index.html) · [Explore the master notebook](bank_campaign_response_prediction.ipynb)
 
 ## The prediction contract
 
@@ -23,7 +23,7 @@
 | 3 · Prepare the inputs | Build a preprocessing pipeline for numeric fields, categories and unknown values | Complete |
 | 4 · Compare models | Evaluate a simple baseline and logistic regression on validation records | Complete |
 | 5 · Choose an operating cutoff | Compare precision, recall and call volume, then report held-out results | Complete |
-| 6 · Demonstrate the predictor | Publish an interactive dashboard with example inputs, response scores and an adjustable cutoff | Planned |
+| 6 · Demonstrate the predictor | Publish an interactive dashboard with example inputs, response scores and an adjustable cutoff | Complete |
 
 ## Part 2 findings
 
@@ -52,7 +52,13 @@ On the 6,178 validation contacts, logistic regression achieved **0.180 average p
 
 The validation-selected cutoff was **0.09241** (rounded for display). On validation it flagged 431 of 6,178 contacts. On the 6,179 later test records it flagged **2,095**: **1,150** subscribed and **945** declined. It missed **1,226** of the 2,376 recorded subscribers. Precision was **54.9%**, recall **48.4%**, and F1 **0.514**. The cutoff maximizes validation F1, an illustrative choice in the absence of business cost data. Flagging everyone on the test period yields F1 0.555.
 
-## Reproduce Parts 1–5
+## Part 6 · Run the dashboard
+
+Select a job, the number of prior contacts and the previous outcome. The response score comes from the trained logistic-regression pipeline. Move the cutoff to see how many historical test contacts qualify, and select **Restore validation cutoff** to return to the published operating point. The default policy flagged 2,095 of 6,179 contacts, finding 1,150 subscribers and missing 1,226.
+
+The dashboard contains 84 precomputed example scores and aggregate test counts. It works entirely in the browser. To run it offline, open `dashboard/index.html` from a downloaded checkout. Run the final notebook section to rebuild that file from the fitted pipeline and `dashboard/template.html`.
+
+## Reproduce Parts 1–6
 
 Clone the repository and run these commands in a Windows Miniconda prompt:
 
